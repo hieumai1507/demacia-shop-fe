@@ -1,13 +1,14 @@
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import AdminProductTile from "@/components/admin-view/product-tile";
 import CommonForm from "@/components/common/form";
+import { Pagination } from "@/components/common/pagination";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
 import { addProductFormElements } from "@/config";
@@ -31,6 +32,8 @@ const initialFormData = {
   averageReview: 0,
 };
 function AdminProducts() {
+  const productsPerPage = 20;
+  const [currentPage, setCurrentPage] = useState(1);
   const [openCreateProductsDialog, setOpenCreateProductDialog] =
     useState(false);
   const [formData, setFormData] = useState(initialFormData);
@@ -41,7 +44,9 @@ function AdminProducts() {
   const { productList } = useSelector((state) => state.adminProducts);
   const { toast } = useToast();
   const [currentEditedId, setCurrentEditedId] = useState(null);
-
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = productList.slice(startIndex, endIndex);
   function onSubmit(event) {
     event.preventDefault();
     currentEditedId !== null
@@ -104,19 +109,28 @@ function AdminProducts() {
           Add New Product
         </Button>
       </div>
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {productList && productList.length > 0
-          ? productList.map((productItem) => (
-              <AdminProductTile
-                setFormData={setFormData}
-                setOpenCreateProductDialog={setOpenCreateProductDialog}
-                setCurrentEditedId={setCurrentEditedId}
-                product={productItem}
-                key={productItem?._id}
-                handleDelete={handleDelete}
-              />
-            ))
-          : null}
+      <div>
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {currentProducts && currentProducts.length > 0
+            ? currentProducts.map((productItem) => (
+                <AdminProductTile
+                  setFormData={setFormData}
+                  setOpenCreateProductDialog={setOpenCreateProductDialog}
+                  setCurrentEditedId={setCurrentEditedId}
+                  product={productItem}
+                  key={productItem?._id}
+                  handleDelete={handleDelete}
+                />
+              ))
+            : null}
+        </div>
+        <div className="mt-6 flex justify-center mb-4">
+          <Pagination
+            totalPages={Math.ceil(productList.length / productsPerPage)}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
       <Sheet
         open={openCreateProductsDialog}

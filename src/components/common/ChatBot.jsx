@@ -33,7 +33,7 @@ function ChatBot() {
     try {
       //make the API call to get the bot's response
       const response = await fetch(
-        import.meta.env.GEMINI_API_URL,
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyC5Jgxr59EPu5BDNDq9LaQNtPGjjOIZd1U",
         requestOptions
       );
       const data = await response.json();

@@ -1,7 +1,4 @@
 import { Button } from "@/components/ui/button";
-import bannerOne from "../../assets/banner-1.webp";
-import bannerTwo from "../../assets/banner-2.png";
-import bannerThree from "../../assets/banner-3.webp";
 import {
   Airplay,
   BabyIcon,
@@ -17,6 +14,9 @@ import {
   WashingMachine,
   WatchIcon,
 } from "lucide-react";
+import bannerOne from "../../assets/banner-1.webp";
+import bannerTwo from "../../assets/banner-2.png";
+import bannerThree from "../../assets/banner-3.webp";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: ShirtIcon },
@@ -35,21 +35,23 @@ const brandsWithIcon = [
   { id: "h&m", label: "H&M", icon: Heater },
 ];
 
+import { Pagination } from "@/components/common/pagination";
+import ProductDetailsDialog from "@/components/shopping-view/product-details";
+import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { toast } from "@/components/ui/use-toast";
+import { getFeatureImages } from "@/store/common-slice";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import {
   fetchAllFilteredProducts,
   fetchProductDetails,
 } from "@/store/shop/products-slice";
-import { useSelector } from "react-redux";
-import ShoppingProductTile from "@/components/shopping-view/product-tile";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { toast } from "@/components/ui/use-toast";
-import ProductDetailsDialog from "@/components/shopping-view/product-details";
-import { getFeatureImages } from "@/store/common-slice";
 function ShoppingHome() {
+  const productsPerPage = 16;
+  const [currentPage, setCurrentPage] = useState(1);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliders = [bannerOne, bannerTwo, bannerThree];
   const dispatch = useDispatch();
@@ -67,6 +69,9 @@ function ShoppingHome() {
     }, 5000);
     return () => clearInterval(timer);
   });
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = productsList.slice(startIndex, endIndex);
   useEffect(() => {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
@@ -194,9 +199,9 @@ function ShoppingHome() {
           <h2 className="text-3xl font-bold text-center mb-8">
             Feature Products
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap 6">
-            {productsList && productsList.length > 0
-              ? productsList.map((productItem) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {currentProducts && currentProducts.length > 0
+              ? currentProducts.map((productItem) => (
                   <ShoppingProductTile
                     handleGetProductDetails={handleGetProductDetails}
                     product={productItem}
@@ -213,6 +218,13 @@ function ShoppingHome() {
         setOpen={setOpenDetailsDialog}
         productDetails={productDetails}
       />
+      <div className="mt-6 flex justify-center mb-4">
+        <Pagination
+          totalPages={Math.ceil(productsList.length / productsPerPage)}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </div>
     </div>
   );
 }
