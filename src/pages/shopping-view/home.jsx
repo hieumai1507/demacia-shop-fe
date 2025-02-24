@@ -35,7 +35,6 @@ const brandsWithIcon = [
   { id: "h&m", label: "H&M", icon: Heater },
 ];
 
-import { Pagination } from "@/components/common/pagination";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +48,7 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Pagination } from "@/components/common/Pagination";
 function ShoppingHome() {
   const productsPerPage = 16;
   const [currentPage, setCurrentPage] = useState(1);
