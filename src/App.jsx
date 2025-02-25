@@ -24,6 +24,7 @@ import PaypalReturnPage from "./pages/shopping-view/paypal-return";
 import SearchProducts from "./pages/shopping-view/search";
 import UnauthPage from "./pages/unauth-page";
 import { checkAuth } from "./store/auth-slice";
+import AdminAccounts from "./pages/admin-view/accounts";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -71,6 +72,7 @@ function App() {
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />
+          <Route path="accounts" element={<AdminAccounts />} />
         </Route>
         <Route
           path="/shop"

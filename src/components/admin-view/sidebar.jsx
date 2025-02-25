@@ -4,6 +4,7 @@ import {
   ShoppingBasket,
   BadgeCheck,
   CircleGauge,
+  CircleUserRound,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -34,6 +35,12 @@ const adminSideBarMenuItems = [
     label: "Orders",
     path: "/admin/orders",
     icons: <BadgeCheck />,
+  },
+  {
+    id: "accounts",
+    label: "Accounts",
+    path: "/admin/accounts",
+    icons: <CircleUserRound />,
   },
 ];
 
