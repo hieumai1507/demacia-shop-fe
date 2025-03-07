@@ -15,11 +15,6 @@ function AdminLayout() {
         <AdminHeader setOpen={setOpenSideBar} />
         <main className="flex-1 flex-col flex bg-muted/40 md:p-6">
           <Outlet />
-          <div className="ml-4">
-            {" "}
-            {/*Added div for spacing */}
-            <ChatBot />
-          </div>
         </main>
       </div>
     </div>
