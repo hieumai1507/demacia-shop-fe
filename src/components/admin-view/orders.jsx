@@ -119,7 +119,7 @@ function AdminOrdersView() {
                     <Button
                       onClick={() => handleFetchOrderDetails(orderItem?._id)}
                     >
-                      ViewDetail
+                      View Detail
                     </Button>
                     <AdminOrdersDetailsView orderDetails={orderDetails} />
                   </Dialog>
