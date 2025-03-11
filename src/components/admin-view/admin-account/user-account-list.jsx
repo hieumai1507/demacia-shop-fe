@@ -1,4 +1,3 @@
-// user-account-list.jsx
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -35,6 +34,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input"; // Import Input
 
 function AdminUserAccountList({ view }) {
   const dispatch = useDispatch();
@@ -51,22 +51,38 @@ function AdminUserAccountList({ view }) {
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
+  // 1. Filtered User List
   const filteredUserList = useMemo(() => {
     if (!userList) return [];
+    let list = userList;
+
     if (view === "staff") {
-      return userList.filter((userItem) => userItem.role === "user");
+      list = list.filter((userItem) => userItem.role === "user");
     }
     if (view === "manager") {
-      return userList.filter(
+      list = list.filter(
         (userItem) =>
           userItem.role === "user" ||
           (userItem.role === "admin" && userItem.typeAdmin === "staff")
       );
     }
-    return userList;
-  }, [userList, view]);
+    // Apply search filter
+    if (searchQuery) {
+      const lowerCaseSearchQuery = searchQuery.toLowerCase();
+      list = list.filter(
+        (userItem) =>
+          userItem.userName.toLowerCase().includes(lowerCaseSearchQuery) ||
+          userItem.email.toLowerCase().includes(lowerCaseSearchQuery) ||
+          userItem.role.toLowerCase().includes(lowerCaseSearchQuery) ||
+          userItem.typeAdmin.toLowerCase().includes(lowerCaseSearchQuery)
+      );
+    }
+    return list;
+  }, [userList, view, searchQuery]);
 
+  // 2. Sorted User List
   const sortedUserList = useMemo(() => {
     const sorted = [...filteredUserList].sort((a, b) => {
       if (a.role === b.role) {
@@ -76,14 +92,14 @@ function AdminUserAccountList({ view }) {
     });
     return sorted;
   }, [filteredUserList]);
-
+  // pagination code
   const paginatedUserList = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return sortedUserList.slice(startIndex, startIndex + itemsPerPage);
   }, [sortedUserList, currentPage, itemsPerPage]);
 
   const isSelf = (userItem) => userItem._id === user._id;
-
+  // condition to edit
   const canEdit = (userItem) => {
     if (userItem.role === "admin" && userItem.typeAdmin === "director")
       return false;
@@ -107,7 +123,7 @@ function AdminUserAccountList({ view }) {
       (view === "manager" && editFormData.role === "admin")
     );
   };
-
+  // user will be promoted to staff and manager
   const getAvailableTypeAdminOptions = (userItem) => {
     const options = ["none"];
     if (view === "director") {
@@ -130,6 +146,7 @@ function AdminUserAccountList({ view }) {
     }
     return options;
   };
+  // dispatch all user account
   useEffect(() => {
     dispatch(getAllUsersAccount());
   }, [dispatch]);
@@ -141,7 +158,7 @@ function AdminUserAccountList({ view }) {
       typeAdmin: userItem.typeAdmin,
     });
   };
-
+  // handle edit submit
   const handleEditSubmit = (e) => {
     e.preventDefault();
     setIsUpdating(true);
@@ -174,12 +191,13 @@ function AdminUserAccountList({ view }) {
         setIsUpdating(false);
       });
   };
+  // open detailDialog
   const handleOpenDetailDialog = (userId) => {
     const id = String(userId);
     setSelectedUserId(id);
     setOpenDetailDialog(true);
   };
-
+  // close detail dialog
   const handleCloseDetailDialog = () => {
     setOpenDetailDialog(false);
     setSelectedUserId(null);
@@ -203,6 +221,15 @@ function AdminUserAccountList({ view }) {
   }
   return (
     <>
+      <div className="mb-4">
+        <Input
+          type="text"
+          placeholder="Search for users..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-md"
+        />
+      </div>
       <div className="overflow-x-auto">
         <Table className="max-w-[1000px] items-center">
           <TableHeader>
