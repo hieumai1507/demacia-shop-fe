@@ -1,8 +1,28 @@
-# React + Vite
+# Demacia Shop Client (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Setup
 
-Currently, two official plugins are available:
+1. Copy `.env.example` to `.env` and set your API key:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+cp .env.example .env
+```
+
+Edit `.env` and set:
+
+```
+VITE_GEMINI_API_KEY=your_api_key_here
+```
+
+2. Install dependencies and start the dev server:
+
+```
+npm install
+npm run dev
+```
+
+## Build
+
+```
+npm run build
+```
