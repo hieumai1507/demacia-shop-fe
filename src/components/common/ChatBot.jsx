@@ -3,52 +3,68 @@ import "./ChatBot.css";
 import ChatForm from "./ChatBot/ChatForm";
 import { useEffect, useRef, useState } from "react";
 import ChatMessage from "./ChatBot/ChatMessage";
-import companyInfo, { getFormattedCompanyInfo } from "./companyInfo"; // Import the function
-const initialCompanyInfoString = JSON.stringify(companyInfo, null, 2); // Pretty-print JSON
+import { getFormattedCompanyInfo } from "./companyInfo";
+
 function ChatBot() {
   const [chatHistory, setChatHistory] = useState([
     {
       hideInChat: true,
-      role: "model",
+      role: "user",
       text: getFormattedCompanyInfo(),
     },
   ]);
   const [showChatbot, setShowChatbot] = useState(false);
   const chatBodyRef = useRef();
   const generateBotResponse = async (history) => {
-    //helper function to update chat history
     const updateHistory = (text, isError = false) => {
       setChatHistory((prev) => [
-        ...prev.filter((msg) => msg.text !== "Thinking..."),
+        ...prev.filter((msg) => msg.isPlaceholder !== true),
         { role: "model", text, isError },
       ]);
     };
-    //Format chat history for API request
     history = history.map(({ role, text }) => ({ role, parts: [{ text }] }));
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: history }),
+      body: JSON.stringify({
+        contents: history,
+        systemInstruction: {
+          role: "user",
+          parts: [
+            {
+              text:
+                "You are a concise, helpful shopping assistant for Demacia Shop. Use the provided company context. If the question is unrelated, politely steer back to shopping or store info.",
+            },
+          ],
+        },
+      }),
     };
     try {
-      //make the API call to get the bot's response
+      if (!apiKey)
+        throw new Error("Missing API key. Set VITE_GEMINI_API_KEY in your environment.");
       const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyA_7XE1G5qLJdZNlR77MKqooaxic4hc4pE",
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         requestOptions
       );
       const data = await response.json();
       if (!response.ok)
-        throw new Error(data.error.message || "Something went wrong!");
-      //clear and update chat history whit bot's response
-      const apiResponseText = data.candidates[0].content.parts[0].text
-        .replace(/\*\*(.*?)\*\*/g, "$1")
-        .trim();
-      updateHistory(apiResponseText);
+        throw new Error(data.error?.message || "Something went wrong!");
+      const apiResponseText =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text
+          ?.replace(/\*\*(.*?)\*\*/g, "$1")
+          ?.trim();
+      if (apiResponseText) {
+        updateHistory(apiResponseText);
+      } else {
+        updateHistory("Sorry, I couldn't generate a response. Please try again.", true);
+      }
     } catch (error) {
-      console.log(error.message, true);
+      updateHistory(`Error: ${error.message}`, true);
     }
   };
   useEffect(() => {
+    if (!chatBodyRef.current) return;
     chatBodyRef.current.scrollTo({
       top: chatBodyRef.current.scrollHeight,
       behavior: "smooth",
